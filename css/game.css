@@ -1,0 +1,93 @@
+* {
+    margin: 0px;
+}
+
+#wrapper {
+    width: 1100px;
+    height: 650px;
+    margin: auto;
+    position: relative;
+}
+
+#wrapper div {
+    float: left
+}
+
+#gameMap{
+    position: relative;
+    background:url("../img/background/gameStage.jpg");
+    width : 900px;
+    height : 650px;
+    border-radius: 20px;
+    
+}
+
+#divBossInfo {
+    width: 900px;
+    height: 50px;
+    position: relative;
+}
+
+#divBossInfo div{
+    line-height: 50px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 30px;
+    position: absolute;;
+}
+
+#bossNameView{
+    width : 150px;
+}
+
+#bossHPView{
+    left : 150px;
+    width: 500px;
+    top : 10px;
+    height : 30px;
+}
+
+#bossSkillView{
+    width : 250px;
+    left : 650px;    
+}
+
+#gameStage {
+    width: 900px;
+    height: 600px;
+    position: absolute;
+    top : 50px;    
+}
+
+#infoView {
+    border-radius: 20px;
+    border: 10px black double;
+    width: 160px;
+    height: 610px;
+    padding : 10px;
+    position: relative;
+}
+#infoView_PP{
+    width : 140px;
+    height : 40px;
+    background : red;
+}
+
+#debugTool{
+    display : none;
+}
+
+#pauseView{
+    font-size: 50px;
+    font-weight: bold;
+    top : 250px;
+    left : 130px;
+    width : 600px;
+    text-align: center;
+    display: none;
+    position: absolute;
+    background : white;
+    border-radius : 50px;
+    border : 10px black solid;
+    opacity: 0.7
+}

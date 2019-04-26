@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>게임 페이지</title>
+    <link rel="stylesheet" type="text/css" href="./css/game.css" />
+
+    <!-- 게임 데이터 불러옴-->
+    <script src="./setting/GamePlayerData.js"></script>
+    <script src="./setting/GameBossData.js"></script>
+    <script src="./setting/GameItemData.js"></script>
+    <script src="./setting/GameInfo.js"></script>
+    <!-- 캐릭터에 사용하는 클래스 파일 -->
+    <script src="./js/common.js"></script>
+    <script src="./class/GameObject.js"></script>
+    <script src="./class/objectManager.js"></script>
+    <script src="./class/HitBox.js"></script>
+    <script src="./class/bullet.js"></script>
+    <script src="./class/Item.js"></script>
+    <!-- 등장 캐릭터별 클래스 파일-->
+    <script src="./class/HealingItem.js"></script>
+    <script src="./class/PlayerChar.js"></script>
+    <script src="./class/BossChar.js"></script>
+    <script src="./class/Stage1Boss.js"></script>
+    <script src="./class/Stage2Boss.js"></script>
+    <script src="./class/Stage3Boss.js"></script>
+    <script src="./class/Stage4Boss.js"></script>
+    <script src="./class/Stage5Boss.js"></script>
+    <script src="./class/Stage6Boss.js"></script>
+
+    <script>
+        const DEBUG_MODE = false;   // 디버그 모드 사용 하는지 체크
+
+        var keyMap = { 16: false, 27: false, 37: false, 38: false, 39: false, 40: false, 88: false, 90: false };    // 키 입력 정보 들어있는 객체
+
+        var userChar;   // 사용자 캐릭터 정보 들어있는 객체
+        var bossChar;   // 보스 캐릭터 정보 들어있는 객체
+        var objectManager;  // 게임 내 오브젝트를 담당하는 객체
+        var gameInfo;   // 게임 플레이중 데이터 값을 저장하는 객체
+
+        var gameLooping;    // 게임 루프 저장하는 변수
+
+        var gameStage, infoView, wrapper;   // 게임 화면 구성
+        var bossNameView, bossHPView, bossSkillView;    // 게임 보스 인터페이스
+        var infoView_stage, infoView_score, pauseView, infoView_life, infoView_PP; //게임 인포 인터페이스
+        var debugTool;
+        var itemCreateCount = 1000;
+
+        var pauseFlag = false;  // 정지상태인지 알려주는 플래그값
+        var gameOverFlag = false; // 게임이 종료되었는지 알려주는 플래그값
+
+
+
+        function init() {
+            gameStage = document.getElementById("gameStage");
+            infoView = document.getElementById("infoView");
+            wrapper = document.getElementById("wrapper");
+            bossNameView = document.getElementById("bossNameView");
+            bossHPView = document.getElementById("bossHPView");
+            bossSkillView = document.getElementById("bossSkillView");
+            infoView_stage = document.getElementById("infoView_stage");
+            infoView_score = document.getElementById("infoView_score");
+            infoView_life = document.getElementById("infoView_life");
+            pauseView = document.getElementById("pauseView");
+            infoView_PP = document.getElementById("infoView_PP");
+
+            // 디버깅 모드 용도
+            debugTool = document.getElementById("debugTool");
+
+            if (DEBUG_MODE) {
+                debugTool.style.display = "block";
+            } else {
+                gameStage.style.overflow = "hidden";
+            }
+
+            bossHPView.style.width = 500 + "px";
+
+            gameStage.style.width = 900 + "px"
+            gameStage.style.height = 600 + "px"
+
+            gameInfo = new GameInfo(playerData.initValue);    // 초기 정보 입력
+            objectManager = new ObjectManager();    // 오브젝트 매니저 생성
+            createUserChar();   // 플레이어 캐릭터 생성
+            createBossChar();
+            createAudio();
+
+            gameLoop();
+        }
+
+        // 플레이하는 캐릭터 생성하는 함수
+        function createUserChar() {
+            userChar = new PlayerChar(gameStage, playerData.playerChar);
+            objectManager.addObject(userChar);
+        }
+
+        // 적 보스 생성하는 함수
+        function createBossChar() {
+            switch (gameInfo.stage) {
+                case 1: bossChar = new Stage1Boss(gameStage, bossData.stage1Boss); break;
+                case 2: bossChar = new Stage2Boss(gameStage, bossData.stage2Boss); break;
+                case 3: bossChar = new Stage3Boss(gameStage, bossData.stage3Boss); break;
+                case 4: bossChar = new Stage4Boss(gameStage, bossData.stage4Boss); break;
+                case 5: bossChar = new Stage5Boss(gameStage, bossData.stage5Boss); break;
+                case 6: bossChar = new Stage6Boss(gameStage, bossData.stage6Boss); break;
+            }
+            objectManager.addObject(bossChar);
+
+        }
+
+        // 키보드 입력 처리하는 함수
+        function inputKey(flag) {
+            var key = event.keyCode;
+            var speed = 0;
+
+            keyMap[key] = flag;
+
+            //ESC누르면 정지
+            if (keyMap[27]) {
+                keyESC();
+            }
+
+            // 쉬프트 누르면 저속모드
+            if (keyMap[16]) {
+                speed = playerData.playerChar.moveSpeed / 2;
+            } else {
+                speed = playerData.playerChar.moveSpeed
+            }
+
+            // 스킬 사용
+            if (keyMap[88]) {
+                userChar.skill();
+            }
+
+            // 좌우이동
+            if (keyMap[37] && !keyMap[39]) {  // 왼쪽으로 이동
+                userChar.velX = -speed;
+            } else if (!keyMap[37] && keyMap[39]) {   // 오른쪽으로 이동
+                userChar.velX = speed;
+            } else {
+                userChar.velX = 0;
+            }
+
+            // 위아래 이동
+            if (keyMap[38] && !keyMap[40]) {  // 위로 이동
+                userChar.velY = -speed;
+            } else if (!keyMap[38] && keyMap[40]) {  // 아래로 이동
+                userChar.velY = speed;
+            } else {
+                userChar.velY = 0;
+            }
+        }
+
+        function playerAttack() {
+            if (keyMap[90]) { // 노멀
+                userChar.normalBullet();
+            }
+        }
+
+        // 상단의 보스 상태 보여주는 창 설정
+        function bossInfoView() {
+            var restLife = bossChar.life / bossChar.initLife;
+            bossNameView.innerText = bossChar.name;
+            bossHPView.style.width = restLife * 500 + "px";
+            bossSkillView.innerText = bossChar.initData.skillNames[bossChar.phase];
+
+            if (restLife < 0.3) {
+                bossChar.phase = 3; // 체력수치 30% 미만으로 떨어지면 3페이즈
+                bossHPView.style.background = "red";
+            } else if (restLife < 0.7) {
+                bossChar.phase = 2; // 체력수치 70% 미만으로 떨어지면 2페이즈
+                bossHPView.style.background = "yellow";
+            } else {
+                bossChar.phase = 1; // 기본 1페이즈
+                bossHPView.style.background = "greenyellow";
+            }
+            infoView_PP.style.width = userChar.skillCoolDown / playerData.playerChar.bullet.skill.interval * 140 + "px";
+            if (userChar.skillCoolDown / playerData.playerChar.bullet.skill.interval != 1) {
+                infoView_PP.style.background = "red";
+            } else {
+                infoView_PP.style.background = "blue";
+            }
+
+
+        }
+
+        // 우측의 캐릭터 상태 보여주는 창 설정
+        function charInfoView() {
+            infoView_stage.innerText = "stage " + gameInfo.stage;
+            infoView_score.innerText = gameInfo.score;
+            infoView_life.innerText = gameInfo.life + " / " + playerData.initValue.life;
+            if (gameInfo.life / playerData.initValue.life < 0.3) {
+                infoView_life.style.color = "red";
+            } else if (gameInfo.life / playerData.initValue.life < 0.7) {
+                infoView_life.style.color = "yellowgreen";
+            } else if (gameInfo.life / playerData.initValue.life < 1) {
+                infoView_life.style.color = "black";
+            }
+
+
+        }
+
+        function bossBulletRemove() {
+            for (i = 0; i < objectManager.objectArray.length; i++) {
+                if (objectManager.objectArray[i].type == "BOSS_BULLET") {
+                    objectManager.removeObject(objectManager.objectArray[i]);
+                }
+            }
+        }
+
+        function keyESC() {
+            if (!gameOverFlag) {    // 게임끝나면 동작하지 않도록 설정
+                if (pauseFlag) {
+                    gameLoop()
+                    pauseView.style.display = "none"
+                } else {
+                    clearTimeout(gameLooping)
+                    pauseView.style.display = "block"
+                }
+                pauseFlag = !pauseFlag;
+            }
+        }
+
+        // 다음스테이지로 넘어가는 함수
+        function nextStage() {
+            //보스 및 보스 탄 제거
+            for (var i = objectManager.objectArray.length - 1; i >= 0; i--) {
+                if (objectManager.objectArray[i].type != "PLAYER") {
+                    objectManager.removeObject(objectManager.objectArray[i]);
+                }
+            }
+
+            gameInfo.stage++;
+            if (gameInfo.stage == 7) {
+                gameInfo.stage = "클리어";
+                gameOver();
+            }
+            bossInfoView();
+
+            setTimeout("createBossChar()", 100);
+            setTimeout("gameLoop()", 500);
+        }
+
+        // 아이템 생성하는 함수
+        function createItem() {
+            itemCreateCount--;
+            if (itemCreateCount < 0) {
+                var ranY = getRandom(parseInt(gameStage.style.height) - itemData.healing.height);
+                var item = new HealingItem(gameStage, parseInt(gameStage.style.width), ranY, itemData.healing);
+                objectManager.addObject(item);
+                itemCreateCount = getRandomByRange(500, 5000);
+            }
+        }
+
+        // 게임종료 되었을때 처리하는 함수
+        function gameOver() {
+
+            // 게임 정지
+            clearTimeout(gameLooping);
+
+            // 오브젝트 전부 제거
+            while (objectManager.objectArray.length) {
+                objectManager.removeObject(objectManager.objectArray[0]);
+            }
+
+            var str = "";
+            str += "게임 종료<br>"
+            str += "최종 스테이지 : " + gameInfo.stage + "<br>";
+            str += "최종 점수 : " + gameInfo.score + "<br>";
+            str += "<a href='./index.html'>첫페이지로</a>";
+            pauseView.style.display = "block";
+            pauseView.innerHTML = str;
+        }
+
+        function createAudio() {
+            var audio = document.createElement("audio");
+            audio.src = "./music/background.mp3";
+            audio.play();
+            // 오디오를 문서에 붙이자
+            document.body.appendChild(audio);
+        }
+
+
+        function gameLoop() {
+            objectManager.tick();   // 오브젝트 tick 동작
+            objectManager.render(); //오브젝트 render 동작
+
+            playerAttack();        // 플레이어 공격
+            bossChar.attack();  // 보스 공격
+
+            bossInfoView();     // 보스 상태 표시
+            charInfoView();     // 캐릭터 상태 표시
+
+            createItem();       // 아이템 제작
+
+            // 보스 체력 0되면 다음 스테이지로 이동
+            if (bossChar.life < 0) {
+                nextStage();
+                return;
+            }
+
+            // 캐릭터 라이프 0되면 게임 종료
+            if (gameInfo.life < 0) {
+                gameOver();
+                return;
+            }
+
+            gameLooping = setTimeout("gameLoop()", 1);
+        }
+
+
+    </script>
+</head>
+
+<body onLoad="init()" onkeydown="inputKey(true)" onkeyup="inputKey(false)">
+    <div id="wrapper">
+        <div id=gameMap>
+            <div id="divBossInfo">
+                <div id="bossNameView"></div>
+                <div id="bossHPView"></div>
+                <div id="bossSkillView"></div>
+            </div>
+            <div id="gameStage"></div>
+
+            <!--PAUSE 창-->
+            <div id=pauseView>
+                PAUSE<br>
+                (ESC 누르면 재시작)<br>
+                <a href="./index.html">첫페이지로</a>
+            </div>
+
+        </div>
+
+        <div id="infoView">
+            <h1 id="infoView_stage">stage</h1>
+            <h1>score</h1>
+            <h1 id="infoView_score">0</h1>
+            <h1>LIFE</h1>
+            <h1 id="infoView_life">100/100</h1>
+            <h1>PP</h1>
+            <div id="infoView_PP"></div>
+            <br><br><br><br>
+            <h3>이동 : 방향키</h3>
+            <h3>Shift : 저속이동</h3>
+            <h3>z : 일반공격</h3>
+            <h3>x : 스킬공격</h3>
+            <h3>ESC : 일시정지</h3>
+
+        </div>
+
+        <!-- 디버깅용 -->
+        <div id="debugTool">
+            tick : <input type="text" onchange="bossChar.tickCount=parseInt(this.value)" />
+            <button onclick="bossChar.attack()">attack</button> <br>
+            hp : <input type="text" onchange="bossChar.life=parseInt(this.value)" /> <br>
+            gameLoop : <button onclick="gameLoop()">start</button>
+            <button onclick="clearTimeout(gameLooping)">pause</button>
+        </div>
+
+</body>
+
+</html>

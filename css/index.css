@@ -1,0 +1,35 @@
+*{
+    margin:0px;
+}
+#wrapper {
+    width: 1100px;
+    height: 650px;
+    margin: auto;
+    position: relative;
+    background:url("../img/background/index.jpg");
+}
+
+#wrapper div{
+    position : absolute;
+}
+.nextPage{
+    width : 153px;
+    height : 47px;
+    left : 482px;
+    top : 346px;
+}
+
+.introView{
+    width : 202px;
+    height : 45px;
+    left : 459px;
+    top : 435px;
+}
+
+#introPage{
+    width: 800px;
+    height : 500px;
+    top : 100px;
+    left : 150px;
+    display:none;
+}

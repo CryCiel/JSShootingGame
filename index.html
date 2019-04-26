@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>인덱스 페이지</title>
+    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+
+    <script>
+        var introPage;  // 인트로 화면 보여주는 div창 지정하는 변수
+
+        function init() {
+            introPage = document.getElementById("introPage");
+        }
+
+        function intro(flag){
+            if(flag){
+                
+                introPage.style.display = "block";
+                var str = "<iframe width='800px' height='500px' src='https://www.youtube.com/embed/jHyeCmqlXKk?autoplay=1' frameborder='0'></iframe>";
+                str += "<br> <h1> 아무키나 누르면 닫힙니다 </h1>";
+                introPage.innerHTML = str;
+            }else{
+                introPage.style.display = "none";
+                introPage.innerHTML ="";
+            }
+
+        }
+    </script>
+</head>
+
+<body onload="init()" onkeydown="intro(false)">
+    <div id=wrapper >
+        <div class="other"></div>
+        <a href="./game.html">
+            <div class="nextPage"></div>
+        </a>
+        <div class="introView" onclick="intro(true)"></div>
+        
+        <div id="introPage" ></div>
+    </div>
+    
+</body>
+
+</html>
