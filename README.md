@@ -1,8 +1,16 @@
 # 클래스 다이어그램
 <img src="https://postfiles.pstatic.net/MjAxOTA1MDZfMjkg/MDAxNTU3MTM3MjIwNjUw.stm4jcm1EpBkc52avxiqHYegC4AXFAoPBCxmjzr8TNgg.TDSMJUXPjd828FZJS55hPWeF--SGiR2OXlBBGcHLMM4g.PNG.younggu1545/1.png?type=w966"/>
+<ul>
+  <li>설명1</li>
+  <li>설명2</li>
+</ul>
 
 # 게임 화면
 <img src="https://postfiles.pstatic.net/MjAxOTA1MDZfMjkw/MDAxNTU3MTM3MjIwNzQ3.c_zB8XpIk4YXzssp4rkKbOzVtAEiyi8F0MJnJFPTXigg.B7eHf4CQyS3mLerVyMYIeulva_P3Ydo1SZgTQv8PiAMg.PNG.younggu1545/2.png?type=w966"/>
+<ol>
+  <li>설명1</li>
+  <li>설명2</li>
+</ol>
 
 # 데이터 처리
 <img src="https://postfiles.pstatic.net/MjAxOTA1MDZfMjk3/MDAxNTU3MTM3MjIwNzE1.gjw35ctKVY2MJGW3m-JCi4xSv5PK9QNBiTgDJzRpQhEg.bXvXzTQRdisw76YAki8Ehvjk0sNnF0u5A0jofnWJD0og.PNG.younggu1545/3.png?type=w966"/>
