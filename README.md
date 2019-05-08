@@ -1,3 +1,10 @@
+# 개발 목표
+<ul>
+  <li>자바 스크립트를 사용하여 슈팅게임을 제작함으로써 클래스 및 상속에 대한 이해도 증가</li>
+  <li>서로 다른 패턴의 공격 방식을 사용함으로써 프로그래밍 기술 향상</li>
+  <li>HTML/CSS/JavaScript를 사용함으로써 프론트 개발 능력</li>
+</ul>
+
 # 게임 화면
 <img src="https://postfiles.pstatic.net/MjAxOTA1MDZfMjkw/MDAxNTU3MTM3MjIwNzQ3.c_zB8XpIk4YXzssp4rkKbOzVtAEiyi8F0MJnJFPTXigg.B7eHf4CQyS3mLerVyMYIeulva_P3Ydo1SZgTQv8PiAMg.PNG.younggu1545/2.png?type=w966"/>
 <ul>
